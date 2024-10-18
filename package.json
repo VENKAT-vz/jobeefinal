@@ -1,0 +1,25 @@
+{
+  "name": "jobee-rest-apis",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "serve": "node app.js",
+    "dev": "nodemon app.js",
+    "prod": "SET NODE_ENV=production & nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mongodb": "^6.9.0",
+    "mongoose": "^8.7.1",
+    "node-geocoder": "^4.4.0",
+    "slugify": "^1.6.6",
+    "validator": "^13.12.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
