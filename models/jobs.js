@@ -3,8 +3,7 @@ var validator=require('validator');//validate our inputs
 var slugify=require('slugify');
 var geoCoder=require('../utils/geocoder')
 
-
-var jobSchema = new mongoose.Schema({
+const jobSchema = new mongoose.Schema({
     title:{
         type:String,
         required:[true,'Please enter job title'],
@@ -113,9 +112,14 @@ var jobSchema = new mongoose.Schema({
         type:Date,
         default:new Date().setDate(new Date().getDate()+7)
     },
-    applicantsApplied:{
-        type:[Object],
-        select:false,
+    applicantsApplied : {
+        type : [Object],
+        select : false
+    },
+    user : {
+        type : mongoose.Schema.ObjectId,
+        ref : 'User',
+        required : true
     }
 });
 

@@ -1,10 +1,21 @@
 var express=require('express');
 var app=express();
-var dotenv=require('dotenv');
 
+var dotenv=require('dotenv');
+var cookieParser=require('cookie-parser');
+var fileUpload=require('express-fileupload')
 var connectDatabase=require('./config/database.js');
 var errorMiddleware = require('./middlewares/errors');
 var ErrorHandler=require('./utils/errorhandler.js');
+
+var rateLimit=require('express-rate-limit');
+const helmet=require('helmet');
+const mongoSanitize=require('express-mongo-sanitize');
+const xssClean=require('xss-clean');
+const hpp=require('hpp');
+const cors=require('cors');
+
+const bodyParser=require('body-parser');
 
 //setting up the config.env file variables
 dotenv.config({path:'./config/config.env'});
@@ -23,11 +34,48 @@ connectDatabase();
 //setup body parse to use in postman
 app.use(express.json());
 
+//set cookie parser
+app.use(cookieParser());
 
+//handle file uploads
+app.use(fileUpload());
 
+//sanitize data
+app.use(mongoSanitize());
+
+//prevent xss attacks 
+app.use(xssClean());
+
+//prevent parameter pollution
+app.use(hpp());
+
+//set up bosy parser
+app.use(bodyParser.urlencoded({extended:true}));
+
+//setup security headers
+app.use(helmet());
+
+//setup cors- Accessible by other domains
+app.use(cors());
+//rateLimit
+const limiter=rateLimit({
+    windows:10*60*1000,//10 mins
+    max:100
+});
+
+app.use(limiter);
  //importing the routes
-var jobs=require('./routes/jobs.js');
+const jobs=require('./routes/jobs.js');
+const auth=require('./routes/auth.js');
+const user=require('./routes/user.js');
+
+
 app.use('/api/v1',jobs);
+
+app.use('/api/v1',auth);
+
+app.use('/api/v1',user);
+
 
 //handle unhandled routes
 app.all('*',(req,res,next)=>{
@@ -44,7 +92,7 @@ const server = app.listen(PORT,()=>{
 
 //Handling unhandled promise rejections
 process.on('unhandledRejection',err=>{
-    console.log(`Error : ${err.message}`);
+    console.log(`Error : ${err.stack}`);
     console.log('Shutting down the server due to unhandled promise rejection');
     server.close(()=>{
         process.exit(1);
